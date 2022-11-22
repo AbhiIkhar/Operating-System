@@ -1,7 +1,8 @@
 
-#MY OPERATING SYSTEM
+# MY OPERATING SYSTEM
 
-A brief description of what this project does and who it's for
+Project is build about building an Operating system which are divided into 3 phases.
+
 
 
 ## Projects divided in 3 Phases
@@ -19,9 +20,4 @@ A brief description of what this project does and who it's for
 - No multiprogramming, load and run one program at a time
 - SI interrupt for service request
 
-
-
-## Screenshots
-
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
 
