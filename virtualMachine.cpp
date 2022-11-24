@@ -1,4 +1,5 @@
 /*
+Phase-1 && Phase-2 combining notations
 M: memory- *
 IR: Instruction Register -*
 C: Instruction Counter Register -*
@@ -6,11 +7,23 @@ R:General Purpose Register -*
 C:Toggle-*
 Buffer-*
 */
+/*
+Phase-2 extra stuff
+INTERRUPT VALUES
+    SI = 1 on GD
+    = 2 on PD
+    = 3 on H
+    TI = 2 on Time Limit Exceeded
+    PI = 1 Operation Error
+    = 2 Operand Error
+    = 3 Page Fault
+*/
 
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cstdlib> // for Random Number generation
 using namespace std;
 
 //------------------------------
@@ -22,19 +35,14 @@ bool C;
 vector<vector<char>> buffer;
 int buffSize;
 // -----------------------------
-
-/// @brief Control card -- $AMJ
-void INIT()
-{
-    cout << "Inside INIT()" << endl;
-    M = vector<vector<char>>(100, vector<char>(4, '-'));
-    IR = vector<char>(4, '-');
-    R = vector<char>(4, '-');
-    IC = 0;
-    C = false;
-    buffer = vector<vector<char>>(10, vector<char>(4, '-'));
-    buffSize = 0;
-}
+// -------------PHASE-2- STUFF---------------------------------
+int PTR; //(Page Table pointer);
+// process control block
+#include "PCB.hpp"
+PCB pcb;
+// Setting interrupt
+int SI = 3, TI = 0, PI;
+// ------------------------------------------------------------
 /// @brief GD
 /// @param address
 void evalGD(int add)
@@ -52,7 +60,7 @@ void evalGD(int add)
         }
     }
     cout << "Whole memory after GD: " << endl;
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 300; i++)
     {
         for (int j = 0; j <= 3; j++)
         {
@@ -68,7 +76,7 @@ void evalPD(int add)
     // int n = buffSize;
     if (file2.is_open())
     {
-        
+
         string l = "";
         for (int i = add; i < add + 10; i++)
         {
@@ -79,7 +87,8 @@ void evalPD(int add)
                 {
                     l += ' ';
                     count++;
-                    if(count==4){
+                    if (count == 4)
+                    {
                         break;
                     }
                     continue;
@@ -100,14 +109,14 @@ void evalPD(int add)
 /// @brief Terminate
 void evalH()
 {
-    cout << "Evaluating PD....\n";
+    cout << "Evaluating H....\n";
     ofstream file2("linePrinter.txt", ios::app);
     file2 << "\n";
     file2 << "\n";
     file2.close();
 }
 /// @brief Mater Mode
-void MOS(int SI, int address)
+void MOS(int address)
 {
     cout << "In the MOS...\n";
     switch (SI)
@@ -176,13 +185,15 @@ void branchOnto(int instNum)
 void userProgram(int totalInst)
 {
     cout << "Inside userProgram" << endl;
+    // TODO: Change this for Phase-2
     bool nextBuffer = false;
     while (IC < totalInst)
     {
         IR = M[IC];
         if (IR[0] == 'H')
         {
-            MOS(3, -1);
+            SI = 3;
+            MOS(-1);
             break;
         }
         else if (IR[0] == 'G' && IR[1] == 'D')
@@ -192,13 +203,15 @@ void userProgram(int totalInst)
                 break;
             }
             int add = (IR[2] - '0') * 10 + (IR[3] - '0');
-            MOS(1, add);
+            SI = 1; // setting interrupt
+            MOS(add);
             nextBuffer = true;
         }
         else if (IR[0] == 'P' && IR[1] == 'D')
         {
             int add = (IR[2] - '0') * 10 + (IR[3] - '0');
-            MOS(2, add);
+            SI = 2; // setting interrupt
+            MOS(add);
         }
         else if (IR[0] == 'L' && IR[1] == 'R')
         {
@@ -241,6 +254,7 @@ int storeInstruction(string inst)
         inn++;
         if (inn == 4)
         {
+            
             add++;
             inn = 0;
         }
@@ -282,6 +296,171 @@ bool startWith(string s, string prefix)
     }
     return true;
 }
+// -------------PHASE-2- STUFF---------------------------------
+int ALLOCATE()
+{
+    // rand() generate pseudo-random number in the range of [0, RAND_MAX)
+    int num = rand() % 30;
+    return num;
+}
+/// @brief its mapping the virtual address--> real address
+/// @param VA
+int addressMap(int VA)
+{
+    int PTE = PTR + VA/10;
+    int add = M[PTE][2]*10 + M[PTE][3];
+    int RA = (add)*10 + VA%10;
+    return RA;
+}
+/// @brief Append error
+/// @param errorNum 
+/// @param line 
+string appendErrorMess(int errorNum,string line){
+    switch (errorNum)
+    {
+    case 0:
+        line += "No Error";
+        break;
+    case 1:
+        line += "Out of Data";
+        break;
+    case 2:
+        line += "Line Limit Exceeded";
+        break;
+    case 3:
+        line += "Time Limit Exceeded";
+        break;
+    case 4:
+        line += "Operation Code Error";
+        break;
+    case 5:
+        line += "Operand Error";
+        break;
+    case 6:
+        line += "Invalid Page Fault";
+        break;
+    default:
+        break;
+    }
+    return line;
+}
+/// @brief terminate with error message
+void Terminate(int error1,int error2)
+{
+    cout << "Inside Terminate() ....\n";
+    string line = "";
+    line += appendErrorMess(error1,"");
+    if(error2!=-1){
+        line += " and ";
+        line += appendErrorMess(error2,"");
+    }
+    ofstream file2("linePrinter.txt", ios::app);
+    if (file2.is_open())
+    {
+        file2 << "JOB ID : " << pcb.getJID() << endl;
+        file2 << line << endl;
+        file2 << "IC: " << IC << endl;
+        file2 << "IR: " << IR[0] << IR[1] << IR[2] << IR[3] << endl;
+        file2 << "TTC: " << pcb.getTTC() << endl;
+        file2 << "LLC: " << pcb.getLLC() << endl;
+        file2.close();
+    }
+}
+// ------------------------------------------------------------
+
+/// @brief Page table is creating
+void createPageTable(){
+    cout<<"Inside createTable() "<<endl;
+    int val = PTR*10;
+    for(int i=val;i<val+10;i++){
+        for(int j=0;j<4;j++){
+            M[i][j] = '0';
+        }
+    }
+    for(int i=val;i<val+10;i++){
+        for(int j=0;j<4;j++){
+            cout<<M[i][j]<<" ";
+        }cout<<endl;
+    }
+}
+/// @brief Control card -- $AMJ
+void INIT(int id,int tl,int ll)
+{
+    cout << "Inside INIT()" << endl;
+    M = vector<vector<char>>(300, vector<char>(4, '-')); //In phase-2 its 300 size
+    IR = vector<char>(4, '-');
+    R = vector<char>(4, '-');
+    IC = 0;
+    C = false;
+    buffer = vector<vector<char>>(10, vector<char>(4, '-'));
+    buffSize = 0;
+    // Phase-2 stuff below...
+    // initializing pcb
+    pcb.setJID(id);
+    pcb.setTTL(tl);
+    pcb.setTLL(ll);
+    cout<<"JOBID : "<<pcb.getJID()<<endl;
+    cout<<"TTL : "<<pcb.getTTL()<<endl;
+    cout<<"TLL : "<<pcb.getTLL()<<endl;
+    // initializing ptr and creating page table;
+    PTR = ALLOCATE();
+    createPageTable();
+    cout<<"PTR : "<<PTR<<endl;
+}
+int excuteAMJ(string line)
+{
+    cout<<"Inside excuteAMJ"<<endl;
+    int n = line.length();
+    if (n != 16)
+    {
+        cout << "Your contol card is invalid..." << endl;
+        return 0;
+    }
+    int id = 0, tl = 0, ll = 0, i = 4;
+    int count = 4; // to keep track of 4 element
+    while (count--)
+    {
+        id = id * 10 + (line[i] - '0');
+        i++;
+        // here instead of int any char can be present;
+        // TODO--- HANDLE THAT ERROR ALSO
+    }
+    count = 4;
+    while (count--)
+    {
+        tl = tl * 10 + (line[i] - '0');
+        i++;
+        // here instead of int any char can be present;
+        // TODO--- HANDLE THAT ERROR ALSO
+    }
+    count = 4;
+    while (count--)
+    {
+        ll = ll * 10 + (line[i] - '0');
+        i++;
+        // here instead of int any char can be present;
+        // TODO--- HANDLE THAT ERROR ALSO
+    }
+    //calling INIT function 
+    INIT(id,tl,ll);
+    return 1;
+}
+void getFrameForProgram(){
+    cout<<"Inside getFrameForProgram()"<<endl;
+    int val=ALLOCATE();
+    while(val==PTR){
+        val=ALLOCATE();
+    }
+    cout<<"Frame No is :"<<val<<endl;
+    M[PTR*10][2] = (val/10 + '0');
+    M[PTR*10][3] = (val%10 + '0');
+    cout<<"Page table look likes :"<<endl;
+    for(int i=PTR*10;i<(PTR*10)+10;i++){
+        for(int j=0;j<4;j++){
+            cout<<M[i][j]<<" ";
+        }cout<<endl;
+    }
+}
 int main()
 {
     string line;
@@ -295,10 +474,15 @@ int main()
             cout << line << endl;
             if (startWith(line, "$AMJ"))
             {
-                INIT();
+                int val = excuteAMJ(line);
+                if(!val){
+                    while (getline(file, line) && !startWith(line, "$END"));
+                }
             }
             else if (startWith(line, "$DTA"))
             {
+                // Taking frame for the program....
+                getFrameForProgram();
                 int totalInst = storeInstruction(inst);
                 inst = "";
                 cout << "Starting reading data....\n";
@@ -337,7 +521,7 @@ int main()
     }
     else
     {
-        cout << "There is some Error\n";
+        cout << "There is some unknown error\n";
     }
 
     return 0;
