@@ -1,7 +1,7 @@
 
 # MY OPERATING SYSTEM
 
-Project is build about building an Operating system which are divided into 3 phases.
+Project is about building an Operating system which are divided into 3 phases.
 
 
 

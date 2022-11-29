@@ -46,14 +46,14 @@ class PCB{
              return false;
         return true;
       }
-      void setTTC(){
-          TTC=0;
+      void setTTC(int val){
+          TTC=val;
       }
       int getTTC(){
           return TTC;
       }
-      void setLLC(){
-         LLC=0;
+      void setLLC(int val){
+         LLC=val;
       }
       int getLLC(){
           return LLC;
