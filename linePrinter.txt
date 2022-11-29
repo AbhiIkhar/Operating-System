@@ -1,79 +1,87 @@
-JOB ID : 202
-Operation Code Error
-IC: 16
-IR: ----
-TTC: 18
-LLC: 5
-JOB ID : 202
-Operation Code Error
-IC: 16
-IR: ----
-TTC: 18
-LLC: 5
-JOB ID : 202
-Operation Code Error
-IC: 16
-IR: ----
-TTC: 18
-LLC: 5
-
-
-
-JOB ID : 202
-Operation Code Error
-IC: 16
-IR: ----
-TTC: 18
-LLC: 5
-
-
-
-JOB ID : 202
-Operation Code Error
-IC: 16
-IR: ----
-TTC: 18
-LLC: 5
-
-
-
-JOB ID : 202
-Operation Code Error
-IC: 16
-IR: ----
-TTC: 18
-LLC: 5
-
-
-
-JOB ID : 202
-Invalid Page Fault
-IC: 16
-IR: PD20
-TTC: 3
-LLC: 1
-
-
-
-JOB ID : 202
-Invalid Page Fault
-IC: 16
-IR: PD20
-TTC: 3
-LLC: 1
-
-
-
-*       
-*   *       
-*   *   *       
-*   *       
+*                                       
+*   *                                   
+*   *   *                               
+*   *   *                               
 JOB ID : 202
 Line Limit Exceeded
 IC: 16
 IR: PD60
 TTC: 24
 LLC: 5
+
+
+
+JOB ID : 102
+Invalid Page Fault
+IC: 8
+IR: LR36
+TTC: 3
+LLC: 0
+
+
+
+*                                       
+*   *                                   
+*   *   *                               
+*   *   *                               
+JOB ID : 202
+Line Limit Exceeded
+IC: 16
+IR: PD60
+TTC: 24
+LLC: 5
+
+
+
+JOB ID : 102
+Invalid Page Fault
+IC: 8
+IR: LR36
+TTC: 3
+LLC: 0
+
+
+
+CAT                                     
+JOB ID : 302
+No Error
+IC: 3
+IR: H---
+TTC: 4
+LLC: 1
+
+
+
+*                                       
+*   *                                   
+*   *   *                               
+*   *   *                               
+JOB ID : 202
+Line Limit Exceeded
+IC: 16
+IR: PD60
+TTC: 24
+LLC: 5
+
+
+
+JOB ID : 102
+Invalid Page Fault
+IC: 8
+IR: LR36
+TTC: 3
+LLC: 0
+
+
+
+CAT                                     
+CAT                                     
+JOB ID : 302
+No Error
+IC: 6
+IR: H---
+TTC: 8
+LLC: 2
 
 
 

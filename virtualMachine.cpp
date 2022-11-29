@@ -58,7 +58,7 @@ void evalPD(int add);
 void evalH();
 bool MOS1(int add);
 bool isValidPF();
-void RectifyPF();
+void RectifyPF(int va);
 bool MOS2();
 void loadRegister(int address);
 void storeRegister(int address);
@@ -81,6 +81,7 @@ void evalGD(int add)
     cout << "Buffer size: " << n << endl;
     for (int k = 0; k < n; k++)
     {
+        cout<<"Storing buffer in mainMem.."<<endl;
         for (int i = 0; i <= 3; i++)
         {
             M[add + k][i] = buffer[k][i];
@@ -115,19 +116,19 @@ void evalPD(int add)
                 if (M[i][k] == '-')
                 {
                     l += ' ';
-                    count++;
-                    if (count == 4)
-                    {
-                        break;
-                    }
+                    // count++;
+                    // if (count == 4)
+                    // {
+                    //     break;
+                    // }
                     continue;
                 }
                 l += M[i][k];
             }
-            if (count == 4)
-            {
-                break;
-            }
+            // if (count == 4)
+            // {
+            //     break;
+            // }
         }
         file2 << l;
         file2 << "\n";
@@ -192,11 +193,20 @@ bool isValidPF(){
   // For rest of the 5 operation their is no page fault 
   return false;
 }
-void RectifyPF(){
+void RectifyPF(int va){
     cout<<"Inside  RectifyPF()"<<endl;
-    getFrameForProgram();
-    cout<<"Frame size: "<<frame<<endl;
-    frame++; // incrementing frame size
+    int PTE = PTR*10 + va/10;
+    int val=ALLOCATE();
+    while(allocatedFrames[val]){  // checking whether the frame is allocated or not 
+        val=ALLOCATE();
+    }
+    cout<<"New Page is :" << val<<endl;
+    cout<<"Page is store AT: "<<PTE<<endl;
+    cout<<val/10 <<val%10<<endl;
+    M[PTE][2] =  ((val/10)+'0');
+    M[PTE][3] = ((val%10)+'0');
+    cout<<"M[PTE][2]: "<<M[PTE][2]<<endl;
+    cout<<"M[PTE][3]: "<<M[PTE][3]<<endl;
 }
 /// @brief MOS 2 IS FOR TI AND PI
 /// @return 
@@ -218,7 +228,6 @@ bool MOS2()
     }
     else if(TI==0 && PI==3){
         if(isValidPF()){
-            RectifyPF();
             return false;
         }
         Terminate(6,-1);
@@ -330,6 +339,7 @@ bool userProgram(int totalInst)
         }
         else if (IR[0] == 'G' && IR[1] == 'D')
         {
+            cout<<"In the GD..."<<endl;
             if (nextBuffer)
             {
                    // need data.....
@@ -354,7 +364,9 @@ bool userProgram(int totalInst)
             }
             int va = (IR[2] - '0') * 10 + (IR[3] - '0');
             int ra = addressMap(va);
+            cout<<"ra: "<<ra<<endl;
             if(ra==-1){
+               cout<<"Valid Page fault in GD"<<endl;
                 PI=3;
             }
       
@@ -363,8 +375,11 @@ bool userProgram(int totalInst)
             }
             // Handle page fault error
             if(PI==3 && isValidPF()){
+                cout<<"Assiging new Page in GD..."<<endl;
+                RectifyPF(va);
                 ra = addressMap(va); // mapping address again..
             }
+            cout<<"Real address after rectifying page Fault: "<<ra<<endl;
             // MOS1(TI,SI)
             SI = 1; // setting interrupt
             if(MOS1(ra)){ // with real address
@@ -470,6 +485,8 @@ bool userProgram(int totalInst)
             }
             // Handle page fault error
             if(PI==3 && isValidPF()){
+                cout<<"Rectifying Page Fault.."<<endl;
+                RectifyPF(va);
                 ra = addressMap(va); // mapping address again..
             }
             storeRegister(ra); 
@@ -742,12 +759,18 @@ int ALLOCATE()
 int addressMap(int VA)
 {
     int PTE = (PTR*10) + VA/10;
+    cout<<"PTE: "<<PTE<<endl;
     // If there is * present on 2th index of M[PTE] then it means page is not allocated for program or data;
     if(M[PTE][2]=='*'){
+        cout<<"No Page is there..."<<endl;
         return -1;
     }
+    cout<<"M[PTE][2]-'0': "<<M[PTE][2]-'0'<<endl;
+    cout<<"(M[PTE][3]-'0'): "<<(M[PTE][3]-'0')<<endl;
     int add = (M[PTE][2]-'0')*10 + (M[PTE][3]-'0');
+    cout<<"add: "<<add<<endl;
     int ra = (add)*10 + VA%10;
+    cout<<"The ra is: "<<ra<<endl;
     return ra;
 }
 /// @brief Append error
@@ -957,8 +980,10 @@ int main()
                     int ind = 0, ch = 0, lastind;
                     cout << "Putting data into buffer\n";
                     buffer = vector<vector<char>>(10, vector<char>(4, '-'));
+                    cout<<"Buffer length: "<<line.length()<<endl;
                     for (int i = 0; i < line.length(); i++)
                     {
+                        cout<<"Data in buffer.."<<endl;
                         buffer[ind][ch] = line[i];
                         lastind = ind;
                         if (line[i] == ' ')
@@ -977,6 +1002,12 @@ int main()
                     buffSize = ind;
                     numBuff++; //  adding number of buff
                     //Handling user Program error 
+                    cout<<"Buffer look likes : "<<endl; 
+                    for(int i=0;i<buffSize;i++){
+                        for(int j=0;j<4;j++){
+                            cout<<buffer[i][j]<<" ";
+                        }cout<<endl;
+                    }
                     if(!userProgram(totalInst)){
                        while (getline(file, line) && !startWith(line, "$END"));
                        break;
