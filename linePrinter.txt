@@ -62,3 +62,35 @@ LLC: 2
 
 
 
+*                                       
+*   *                                   
+*   *   *                               
+*   *                                   
+JOB ID : 202
+Line Limit Exceeded
+IC: 14
+IR: PD60
+TTC: 24
+LLC: 5
+
+
+
+SHE SELLS   SEA SHELLS ON SHORE         
+JOB ID : 405
+Time Limit Exceeded and Invalid Page Fault
+IC: 4
+IR: PD40
+TTC: 7
+LLC: 2
+
+
+
+JOB ID : 403
+Time Limit Exceeded and Operation Code Error
+IC: 4
+IR: PS40
+TTC: 13
+LLC: 3
+
+
+

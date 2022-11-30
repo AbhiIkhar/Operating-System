@@ -51,7 +51,11 @@ int numGD=0;
 int numBuff=0;
 // ------------------------Declaration of functions ...------------------------------------
 //21 functions are there
+// Append errors
 string appendErrorMess(int errorNum,string line);
+/// @brief WHEN ERROR Occured then execute
+/// @param error1 
+/// @param error2 
 void Terminate(int error1,int error2);
 int addressMap(int VA);
 void getFrameForProgram();
@@ -73,7 +77,27 @@ int ALLOCATE();
 void createPageTable();
 void INIT(int id,int tl,int ll);
 int excuteAMJ(string line);
+void createMemoryFile();
 // -----------------------------------------------------------------------------------------
+// Creating Memory file
+void createMemoryFile()
+{
+    ofstream myfile;
+    myfile.open("MemoryFile.txt", ios::app);
+    for (int i = 0; i < 300; i++)
+    {
+        string line;
+        for (int j = 0; j <= 3; j++)
+        {
+            line += M[i][j];
+        }
+        myfile << line;
+        myfile << "\n";
+    }
+    myfile << "\n";
+    myfile << "\n";
+    myfile.close();
+}
 /// @brief GD
 /// @param address
 void evalGD(int add)
@@ -147,13 +171,13 @@ void evalH()
     file2 << "\n";
     file2.close();
 }
-/// @brief Mater Mode
+/// @brief TI AND SI
 bool MOS1(int add)
 {
     cout << "In the MOS1...\n";
     //Return : True - when have some error except H
     // Return: False- when have no error
-    if(TI==0 && SI==1){
+    if(TI==0 && SI==1){   //
         evalGD(add);
         return false;
     }
@@ -217,12 +241,8 @@ void RectifyPF(int va){
 bool MOS2()
 {
     cout << "In the MOS2...\n";
-    // TODO:: Have to change it 
-    if(TI==2 && PI==0){
-       Terminate(3,-1);
-       return true;
-    }
-    else if(TI==0 && PI==1){
+    // Interrupts...
+    if(TI==0 && PI==1){
        Terminate(4,-1);
        return true;
     }
@@ -309,21 +329,18 @@ void branchOnto(int instNum)
 bool userProgram(int totalInst)
 {
     cout << "Inside userProgram" << endl;
-    // because i increment it at time of storing instruction
-    pcb.setLLC(0);
-    pcb.setTTC(0);
+    
     bool nextBuffer = false;
-    int add =  addressMap(0);
-    IC=0;
-    IR = vector<char>(4,'-');
-    // TODO-4: Change this for Phase-2
-    // TODO: Non contiguous memory allocation so after 10 instruction need to check for further page.
+    int add =  addressMap(IC);
+    // 
+    // Non contiguous memory allocation so after 10 instruction need to check for further page.
     while (IC < totalInst)
     {
         if(add==-1){
             cout<<"Page is not allocated..."<<endl;
             return false;
         } 
+        // Loading instruction into IR
         IR = M[add];
         if (IR[0] == 'H')
         {
@@ -351,9 +368,9 @@ bool userProgram(int totalInst)
                    // need data.....
                 return true; // no error demand for the next buffer
             }
+            pcb.incrementTTC();   
             pcb.incrementTTC();
-            pcb.incrementTTC();
-          // Check opcode Error
+          // Check oprand Error   GDPH  --- P - 0 >9
             if((IR[2] - '0')<0 || (IR[2] - '0')>9){
                   PI =2;
             }
@@ -434,7 +451,7 @@ bool userProgram(int totalInst)
             }
             // LLC ERROR HANDLING 
             SI = 2; // setting interrupt
-            if(MOS1(ra)){
+            if(MOS1(ra)){ 
                 return false; // erro user program have
             } 
         }
@@ -755,7 +772,13 @@ int storeInstruction(string inst)
             cout<<M[i][j]<<" ";
         }cout<<endl;
     }
-    return totalInst;
+    
+    IC=0; //setting IC
+    // because i increment it at time of storing instruction
+    pcb.setLLC(0);
+    pcb.setTTC(0);
+    IR = vector<char>(4,'-');
+    return totalInst; 
 }
 
 /// @brief To check prefix
@@ -859,6 +882,8 @@ void Terminate(int error1,int error2)
             cout<<M[i][j]<<" ";
         }cout<<endl;
     }
+    // creating mainMem file
+    createMemoryFile();
 }
 // ------------------------------------------------------------
 
