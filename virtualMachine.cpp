@@ -26,6 +26,7 @@ INTERRUPT VALUES
 #include "PCB.hpp"
 #include <cstdlib> // for Random Number generation
 #include<set>
+#include<time.h>
 using namespace std;
 
 //------------------------------
@@ -49,12 +50,13 @@ int frame; // frame number;
 int numGD=0;
 int numBuff=0;
 // ------------------------Declaration of functions ...------------------------------------
+//21 functions are there
 string appendErrorMess(int errorNum,string line);
 void Terminate(int error1,int error2);
 int addressMap(int VA);
 void getFrameForProgram();
-void evalGD(int add);
-void evalPD(int add);
+void evalGD(int add);    
+void evalPD(int add);    
 void evalH();
 bool MOS1(int add);
 bool isValidPF();
@@ -200,6 +202,8 @@ void RectifyPF(int va){
     while(allocatedFrames[val]){  // checking whether the frame is allocated or not 
         val=ALLOCATE();
     }
+    // keeping track of allocated frames... 
+    allocatedFrames[val]++;
     cout<<"New Page is :" << val<<endl;
     cout<<"Page is store AT: "<<PTE<<endl;
     cout<<val/10 <<val%10<<endl;
@@ -310,10 +314,11 @@ bool userProgram(int totalInst)
     pcb.setTTC(0);
     bool nextBuffer = false;
     int add =  addressMap(0);
-    int counter=0;
+    IC=0;
+    IR = vector<char>(4,'-');
     // TODO-4: Change this for Phase-2
     // TODO: Non contiguous memory allocation so after 10 instruction need to check for further page.
-    while (counter < totalInst)
+    while (IC < totalInst)
     {
         if(add==-1){
             cout<<"Page is not allocated..."<<endl;
@@ -322,6 +327,7 @@ bool userProgram(int totalInst)
         IR = M[add];
         if (IR[0] == 'H')
         {
+            cout<<"In the H..."<<endl;
             pcb.incrementTTC();
             SI = 3;
             // TTC
@@ -391,6 +397,7 @@ bool userProgram(int totalInst)
         }
         else if (IR[0] == 'P' && IR[1] == 'D')
         {
+            cout<<"In the PD..."<<endl;
             pcb.incrementLLC();
             pcb.incrementTTC();
             if((IR[2] - '0')<0 || (IR[2] - '0')>9){
@@ -433,6 +440,7 @@ bool userProgram(int totalInst)
         }
         else if (IR[0] == 'L' && IR[1] == 'R')
         {
+            cout<<"In the LR..."<<endl;
             pcb.incrementTTC();
             if((IR[2] - '0')<0 || (IR[2] - '0')>9){
                   PI =2;
@@ -460,6 +468,7 @@ bool userProgram(int totalInst)
         }
         else if (IR[0] == 'S' && IR[1] == 'R')
         {
+            cout<<"In the SR..."<<endl;
             pcb.incrementTTC();
             pcb.incrementTTC(); // sr need 2 unit time 
             if((IR[2] - '0')<0 || (IR[2] - '0')>9){
@@ -494,6 +503,7 @@ bool userProgram(int totalInst)
         }
         else if (IR[0] == 'C' && IR[1] == 'R')
         {
+            cout<<"In the CR..."<<endl;
             pcb.incrementTTC();
             if((IR[2] - '0')<0 || (IR[2] - '0')>9){
                   PI =2;
@@ -520,6 +530,7 @@ bool userProgram(int totalInst)
         }
         else if (IR[0] == 'B' && IR[1] == 'T')
         {
+            cout<<"In the BT..."<<endl;
             pcb.incrementTTC();
             if((IR[2] - '0')<0 || (IR[2] - '0')>9){
                   PI =2;
@@ -546,10 +557,10 @@ bool userProgram(int totalInst)
             branchOnto(ra); //  TODO :  to change 
         }
         add++;  // moving on further instruction ....
-        counter++; // keeping track of number of instruction
-        if(counter%10==0){
+        IC++; // keeping track of number of instruction
+        if(IC%10==0){
             // check for other pages
-            add = addressMap(counter);
+            add = addressMap(IC);
         }
     }
     return true;
@@ -567,6 +578,7 @@ int storeInstruction(string inst)
             cout<<"H-Storing"<<endl;
             pcb.incrementTTC();
             M[add][0] = inst[i];
+            IR = M[add];
             // then store in memory
             // TTC is exceeded its just loading
             // if(pcb.isTTCExceed()){
@@ -590,6 +602,7 @@ int storeInstruction(string inst)
             M[add][1] = inst[i+1];
             M[add][2] = inst[i+2];
             M[add][3] = inst[i+3];
+            IR = M[add];// just for the output
             // TTC is exceeded its just loading so no need to check for Any error except the operation one ...
             // if(pcb.isTTCExceed()){
             //     TI=2;
@@ -612,6 +625,7 @@ int storeInstruction(string inst)
             M[add][1] = inst[i+1];
             M[add][2] = inst[i+2];
             M[add][3] = inst[i+3];
+            IR = M[add];
             // TTC is exceeded
             // if(pcb.isTTCExceed()){
             //     TI=2;
@@ -636,6 +650,7 @@ int storeInstruction(string inst)
             M[add][1] = inst[i+1];
             M[add][2] = inst[i+2];
             M[add][3] = inst[i+3];
+            IR = M[add];
            // TTC is exceeded its just loading
             // if(pcb.isTTCExceed()){
             //     TI=2;
@@ -656,6 +671,7 @@ int storeInstruction(string inst)
             M[add][1] = inst[i+1];
             M[add][2] = inst[i+2];
             M[add][3] = inst[i+3];
+            IR = M[add];
             // TTC is exceeded its just loading
             // if(pcb.isTTCExceed()){
             //     TI=2;
@@ -676,6 +692,7 @@ int storeInstruction(string inst)
             M[add][1] = inst[i+1];
             M[add][2] = inst[i+2];
             M[add][3] = inst[i+3];
+            IR = M[add];
             // TTC is exceeded its just loading
             // if(pcb.isTTCExceed()){
             //     TI=2;
@@ -696,6 +713,7 @@ int storeInstruction(string inst)
             M[add][1] = inst[i+1];
             M[add][2] = inst[i+2];
             M[add][3] = inst[i+3];
+            IR = M[add];
             // TTC is exceeded its just loading
             // if(pcb.isTTCExceed()){
             //     TI=2;
@@ -705,7 +723,13 @@ int storeInstruction(string inst)
             i += 4;
         }
         else{
-           cout<<"Making PI==1"<<endl; 
+            int  till = i+4,k=0;
+            while(i<till && i<n){
+                IR[k]=inst[i];
+                i++;
+                k++;
+            }
+            cout<<"Making PI==1"<<endl; 
             PI=1;
             pcb.incrementTTC();
             if(pcb.isTTCExceed()){
@@ -750,6 +774,7 @@ bool startWith(string s, string prefix)
 // -------------PHASE-2- STUFF---------------------------------
 int ALLOCATE()
 {
+    // srand(time(0));
     // rand() generate pseudo-random number in the range of [0, RAND_MAX)
     int num = rand() % 30;
     return num;
@@ -827,6 +852,12 @@ void Terminate(int error1,int error2)
         file2 << "LLC: " << pcb.getLLC() << endl;
         file2 << "\n\n"<<endl;
         file2.close();
+    }
+    cout<<"Page Table looks like: "<<endl;
+    for(int i=PTR*10;i<PTR*10+10;i++){
+        for(int j=0;j<4;j++){
+            cout<<M[i][j]<<" ";
+        }cout<<endl;
     }
 }
 // ------------------------------------------------------------

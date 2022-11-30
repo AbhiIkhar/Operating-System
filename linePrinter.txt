@@ -1,86 +1,63 @@
 *                                       
 *   *                                   
 *   *   *                               
-*   *   *                               
-JOB ID : 202
-Line Limit Exceeded
-IC: 16
-IR: PD60
-TTC: 24
-LLC: 5
-
-
-
-JOB ID : 102
-Invalid Page Fault
-IC: 8
-IR: LR36
-TTC: 3
-LLC: 0
-
-
-
-*                                       
 *   *                                   
-*   *   *                               
-*   *   *                               
 JOB ID : 202
 Line Limit Exceeded
-IC: 16
+IC: 14
 IR: PD60
 TTC: 24
 LLC: 5
 
 
 
-JOB ID : 102
-Invalid Page Fault
-IC: 8
-IR: LR36
-TTC: 3
-LLC: 0
-
-
-
-CAT                                     
-JOB ID : 302
-No Error
+SHE SELLS   SEA SHELLS ON SHORE         
+JOB ID : 405
+Time Limit Exceeded
 IC: 3
-IR: H---
-TTC: 4
+IR: SR32
+TTC: 6
 LLC: 1
 
 
 
+JOB ID : 403
+Time Limit Exceeded and Operation Code Error
+IC: 4
+IR: SR40
+TTC: 12
+LLC: 2
+
+
+
 *                                       
 *   *                                   
 *   *   *                               
-*   *   *                               
+*   *                                   
 JOB ID : 202
 Line Limit Exceeded
-IC: 16
+IC: 14
 IR: PD60
 TTC: 24
 LLC: 5
 
 
 
-JOB ID : 102
-Invalid Page Fault
-IC: 8
-IR: LR36
-TTC: 3
-LLC: 0
+SHE SELLS   SEA SHELLS ON SHORE         
+JOB ID : 405
+Time Limit Exceeded
+IC: 3
+IR: SR32
+TTC: 6
+LLC: 1
 
 
 
-CAT                                     
-CAT                                     
-JOB ID : 302
-No Error
-IC: 6
-IR: H---
-TTC: 8
+JOB ID : 403
+Time Limit Exceeded and Operation Code Error
+IC: 4
+IR: PS40
+TTC: 12
 LLC: 2
 
 
