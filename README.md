@@ -1,7 +1,7 @@
 
-# MY OPERATING SYSTEM
+# MultiProgramming Operating System 
 
-Project is build about building an Operating system which are divided into 3 phases.
+This MOS project is divided into 3 phases.
 
 
 
