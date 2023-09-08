@@ -62,7 +62,7 @@ This document provides an overview of the functions and their purpose in the pro
 
 ## Introduction
 
-The provided code simulates a computer system's operation, focusing on memory management, program execution, and error handling. It appears to be structured as a multi-phase simulation, and it includes functions for tasks like loading, executing, and handling various operations.
+This code simulates a operating systems operation, focusing on memory management, program execution, and error handling. It appears to be structured as a multi-phase simulation, and it includes functions for tasks like loading, executing, and handling various operations.
 
 ---
 
@@ -199,8 +199,3 @@ This function initializes the simulation, setting up the Page Table, allocated f
 #### Purpose
 
 This function executes the "$AMJ" (Job Initiation) control card.
-```
-
-You can use this `README.md` file content as a starting point for your code documentation, and customize it further if needed. Make sure to provide detailed explanations and examples as necessary to help users understand your code.
-
-
